@@ -15,7 +15,6 @@ from src.argument_parser import (
     parse_filter_condition,
 )
 from tests.fixtures.csv_files import (
-    data_csv_file,
     empty_csv_file,
     headers_csv_file,
     simple_csv_file,
@@ -136,7 +135,7 @@ def test_parse_aggregate_condition_invalid(invalid_condition, expected_error):
     [
         ("simple_csv_file", "price=100"),
         ("headers_csv_file", "quantity>0"),
-        ("data_csv_file", "name=Apple"),
+        ("simple_csv_file", "name=Apple"),
     ],
 )
 def test_parse_arguments_filter(request, csv_fixture_name, where_condition):
@@ -154,7 +153,7 @@ def test_parse_arguments_filter(request, csv_fixture_name, where_condition):
     [
         ("simple_csv_file", "price=avg"),
         ("headers_csv_file", "quantity=min"),
-        ("data_csv_file", "price=max"),
+        ("simple_csv_file", "price=max"),
     ],
 )
 def test_parse_arguments_aggregate(request, csv_fixture_name, aggregate_condition):
@@ -249,7 +248,7 @@ def test_arguments_creation():
             "quantity",
             FilterOperator.EQUAL,
         ),
-        ("data_csv_file", ["--where", "name=Apple"], "name", FilterOperator.EQUAL),
+        ("simple_csv_file", ["--where", "name=Apple"], "name", FilterOperator.EQUAL),
     ],
 )
 def test_real_world_filter_scenarios(
@@ -278,7 +277,7 @@ def test_real_world_filter_scenarios(
             "quantity",
             AggregateFunction.MIN,
         ),
-        ("data_csv_file", ["--aggregate", "price=max"], "price", AggregateFunction.MAX),
+        ("simple_csv_file", ["--aggregate", "price=max"], "price", AggregateFunction.MAX),
     ],
 )
 def test_real_world_aggregate_scenarios(

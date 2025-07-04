@@ -8,7 +8,6 @@ from src.csv_reader import CSVReader
 from tests.fixtures.csv_files import (
     simple_csv_file,
     headers_csv_file,
-    data_csv_file,
     empty_csv_file,
     spaces_csv_file,
     only_headers_csv_file,
@@ -23,10 +22,6 @@ from tests.fixtures.csv_files import (
         ]),
         ("headers_csv_file", ["name", "price", "quantity"], [
             {"name": "Apple", "price": "100", "quantity": "5"},
-        ]),
-        ("data_csv_file", ["name", "price"], [
-            {"name": "Apple", "price": "100"},
-            {"name": "Banana", "price": "50"},
         ]),
         ("spaces_csv_file", ["name", "description"], [
             {"name": "Apple", "description": "Red fruit"},

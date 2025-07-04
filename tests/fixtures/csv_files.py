@@ -16,13 +16,6 @@ def headers_csv_file(tmp_path):
 
 
 @pytest.fixture
-def data_csv_file(tmp_path):
-    file_path = tmp_path / "test_data.csv"
-    file_path.write_text("name,price\nApple,100\nBanana,50")
-    return file_path
-
-
-@pytest.fixture
 def empty_csv_file(tmp_path):
     file_path = tmp_path / "test_empty.csv"
     file_path.write_text("")
