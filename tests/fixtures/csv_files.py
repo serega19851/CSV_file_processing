@@ -41,3 +41,10 @@ def only_headers_csv_file(tmp_path):
     file_path = tmp_path / "test_only_headers.csv"
     file_path.write_text("name,price,quantity")
     return file_path
+
+
+@pytest.fixture
+def csv_with_non_numeric(tmp_path):
+    file_path = tmp_path / "test_csv_with_non_numeric.csv"
+    file_path.write_text("name,price\nApple,100\nBanana,abc\nOrange,50")
+    return file_path
