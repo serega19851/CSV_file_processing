@@ -87,7 +87,7 @@ def create_parser() -> argparse.ArgumentParser:
 
     parser.add_argument("filename", help="Путь к CSV файлу для обработки")
 
-    group = parser.add_mutually_exclusive_group(required=True)
+    group = parser.add_mutually_exclusive_group(required=False)
 
     group.add_argument(
         "--where",

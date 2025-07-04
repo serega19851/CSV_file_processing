@@ -30,6 +30,7 @@ class CommandHandler:
             elif args.order_by_condition:
                 self._execute_order_by(args.filename, args.order_by_condition)
             else:
+                # Если не указано ни одного из аргументов — просто показать всю таблицу
                 headers, data = self.csv_reader.read_file(args.filename)
                 self.output_formatter.display_table(data, headers)
         except FileNotFoundError:
