@@ -1,7 +1,7 @@
 import pytest
 from unittest.mock import Mock, patch, MagicMock
 from src.command_handler import CommandHandler
-from src.argument_parser import Arguments, FilterCondition, AggregateCondition, FilterOperator, AggregateFunction
+from src.argument_parser import Arguments, FilterCondition, AggregateCondition, FilterOperator, AggregateFunction, SortCondition, SortDirection
 
 def test_command_handler_initialization():
     """Тест инициализации CommandHandler"""
@@ -152,4 +152,11 @@ def test_execute_methods_integration():
             args = Arguments(filename="test.csv", aggregate_condition=aggregate_condition)
             handler.execute(args)
             mock_filter.assert_not_called()
-            mock_aggregate.assert_called_once() 
+            mock_aggregate.assert_called_once()
+
+def test_execute_order_by_branch():
+    handler = CommandHandler()
+    args = Arguments(filename="test.csv", order_by_condition=("price", "asc"))
+    with patch.object(handler, '_execute_order_by') as mock_order_by:
+        handler.execute(args)
+        mock_order_by.assert_called_once() 

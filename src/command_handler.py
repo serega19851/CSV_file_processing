@@ -1,11 +1,12 @@
 """
 Координация выполнения команд
 """
-from .argument_parser import Arguments, FilterCondition, AggregateCondition
+from .argument_parser import Arguments, FilterCondition, AggregateCondition, SortCondition
 from .csv_reader import CSVReader
 from .filter_engine import filter_data
 from .aggregator import Aggregator
 from .output_formatter import OutputFormatter
+# from operator import itemgetter
 
 class CommandHandler:
     """
@@ -26,6 +27,8 @@ class CommandHandler:
                 self._execute_aggregate(args.filename, args.aggregate_condition)
             elif args.filter_condition:
                 self._execute_filter(args.filename, args.filter_condition)
+            elif args.order_by_condition:
+                self._execute_order_by(args.filename, args.order_by_condition)
             else:
                 headers, data = self.csv_reader.read_file(args.filename)
                 self.output_formatter.display_table(data, headers)
@@ -55,4 +58,20 @@ class CommandHandler:
         _, data = self.csv_reader.read_file(file)
         condition_str = f"{condition.column}={condition.function.value}"
         result = self.aggregator.aggregate_data(data, condition_str)
-        self.output_formatter.display_aggregate_result(condition.column, condition.function.value, result) 
+        self.output_formatter.display_aggregate_result(condition.column, condition.function.value, result)
+
+    def _execute_order_by(self, file: str, condition: SortCondition) -> None:
+        """Выполнение сортировки"""
+        headers, data = self.csv_reader.read_file(file)
+        col = condition.column
+        reverse = condition.direction == condition.direction.DESC
+
+        def sort_key(row):
+            value = row.get(col)
+            try:
+                return float(value)
+            except (TypeError, ValueError):
+                return value  # fallback to string
+
+        sorted_data = sorted(data, key=sort_key, reverse=reverse)
+        self.output_formatter.display_table(sorted_data, headers) 

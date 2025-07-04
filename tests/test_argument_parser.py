@@ -9,10 +9,12 @@ from src.argument_parser import (
     Arguments,
     FilterCondition,
     FilterOperator,
+    SortDirection,
     create_parser,
     parse_aggregate_condition,
     parse_arguments,
     parse_filter_condition,
+    parse_order_by_condition,
 )
 from tests.fixtures.csv_files import (
     empty_csv_file,
@@ -289,3 +291,34 @@ def test_real_world_aggregate_scenarios(
 
     assert args.aggregate_condition.column == expected_column
     assert args.aggregate_condition.function == expected_function
+
+
+@pytest.mark.parametrize("condition_str,expected_column,expected_direction", [
+    ("price=asc", "price", SortDirection.ASC),
+    ("brand=desc", "brand", SortDirection.DESC),
+    ("  rating = desc  ", "rating", SortDirection.DESC),
+])
+def test_parse_order_by_condition_valid(condition_str, expected_column, expected_direction):
+    condition = parse_order_by_condition(condition_str)
+    assert condition.column == expected_column
+    assert condition.direction == expected_direction
+
+
+@pytest.mark.parametrize("invalid_condition", [
+    "price", "price=>asc", "=asc", "price=down",
+])
+def test_parse_order_by_condition_invalid(invalid_condition):
+    with pytest.raises(ValueError):
+        parse_order_by_condition(invalid_condition)
+
+
+@pytest.mark.parametrize("csv_fixture_name,order_arg,expected_column,expected_direction", [
+    ("simple_csv_file", ["--order-by", "price=asc"], "price", SortDirection.ASC),
+])
+def test_parse_arguments_order_by(request, csv_fixture_name, order_arg, expected_column, expected_direction):
+    csv_file = request.getfixturevalue(csv_fixture_name)
+    args = parse_arguments([str(csv_file)] + order_arg)
+    assert args.order_by_condition.column == expected_column
+    assert args.order_by_condition.direction == expected_direction
+    assert args.filter_condition is None
+    assert args.aggregate_condition is None

@@ -28,6 +28,13 @@ class AggregateFunction(Enum):
     MAX = "max"
 
 
+class SortDirection(Enum):
+    """Направление сортировки."""
+
+    ASC = "asc"
+    DESC = "desc"
+
+
 class FilterCondition(NamedTuple):
     """Условие фильтрации."""
 
@@ -43,12 +50,20 @@ class AggregateCondition(NamedTuple):
     function: AggregateFunction
 
 
+class SortCondition(NamedTuple):
+    """Условие сортировки."""
+
+    column: str
+    direction: SortDirection
+
+
 class Arguments(NamedTuple):
     """Распарсенные аргументы командной строки."""
 
     filename: str
     filter_condition: Optional[FilterCondition] = None
     aggregate_condition: Optional[AggregateCondition] = None
+    order_by_condition: Optional[SortCondition] = None
 
 
 def create_parser() -> argparse.ArgumentParser:
@@ -84,6 +99,12 @@ def create_parser() -> argparse.ArgumentParser:
         "--aggregate",
         type=str,
         help='Условие агрегации в формате "column=function" (avg, min, max)',
+    )
+
+    group.add_argument(
+        "--order-by",
+        type=str,
+        help='Сортировка в формате "column=asc" или "column=desc"',
     )
 
     return parser
@@ -165,6 +186,21 @@ def parse_aggregate_condition(condition_str: str) -> AggregateCondition:
     return AggregateCondition(column=column.strip(), function=function)
 
 
+def parse_order_by_condition(condition_str: str) -> SortCondition:
+    """Парсит строку условия сортировки."""
+    pattern = r"^([a-zA-Z_][a-zA-Z0-9_]*)\s*=\s*(asc|desc)$"
+    match = re.match(pattern, condition_str.strip(), flags=re.IGNORECASE)
+    if not match:
+        raise ValueError(
+            f"Некорректный формат условия сортировки: '{condition_str}'. "
+            f"Ожидается формат 'column=asc' или 'column=desc'"
+        )
+
+    column, direction_str = match.groups()
+    direction = SortDirection(direction_str.lower())
+    return SortCondition(column=column.strip(), direction=direction)
+
+
 def parse_arguments(args: Optional[list[str]] = None) -> Arguments:
     """
     Парсит аргументы командной строки.
@@ -183,6 +219,7 @@ def parse_arguments(args: Optional[list[str]] = None) -> Arguments:
 
     filter_condition = None
     aggregate_condition = None
+    order_by_condition = None
 
     # Парсим условие фильтрации если есть
     if parsed.where:
@@ -192,8 +229,13 @@ def parse_arguments(args: Optional[list[str]] = None) -> Arguments:
     if parsed.aggregate:
         aggregate_condition = parse_aggregate_condition(parsed.aggregate)
 
+    # Парсим условие сортировки если есть
+    if getattr(parsed, "order_by", None):
+        order_by_condition = parse_order_by_condition(parsed.order_by)
+
     return Arguments(
         filename=parsed.filename,
         filter_condition=filter_condition,
         aggregate_condition=aggregate_condition,
+        order_by_condition=order_by_condition,
     )
