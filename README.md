@@ -54,7 +54,7 @@ python main.py <файл.csv> [--where "условие"] [--aggregate "стол�
 
   ```bash
   python main.py phones.csv --where "price>500"
-  python main.py phones.csv --where "name=Apple"
+  python main.py phones.csv --where "name=iphone 15 pro"
   ```
 
 - Агрегация:
